@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+.venv*/
+ml/datasets/
+ml/downloads/
+ml/runs/
+runs/
+weights/
+*.pt
+*.npy
+
+# Android / Gradle
+.gradle/
+build/
+local.properties
+
+# IDE
+.idea/
+*.iml
