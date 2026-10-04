@@ -1,10 +1,10 @@
-package com.tilevision.camera
+package com.tilemaster.camera
 
 import android.os.SystemClock
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.tilevision.detection.Detection
-import com.tilevision.detection.TileDetector
+import com.tilemaster.detection.Detection
+import com.tilemaster.detection.TileDetector
 
 data class LiveDetections(val detections: List<Detection>, val frameWidth: Int, val frameHeight: Int) {
     companion object {

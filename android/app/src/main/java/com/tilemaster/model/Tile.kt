@@ -1,4 +1,4 @@
-package com.tilevision.model
+package com.tilemaster.model
 
 enum class Suit(val code: Char) {
     MAN('m'),

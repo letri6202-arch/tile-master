@@ -1,6 +1,6 @@
-package com.tilevision.detection
+package com.tilemaster.detection
 
-import com.tilevision.model.Tile
+import com.tilemaster.model.Tile
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

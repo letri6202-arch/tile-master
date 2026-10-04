@@ -1,4 +1,4 @@
-# Tile Vision
+# Tile Master
 
 An Android app that reads a Riichi mahjong hand through the camera and (eventually) scores it.
 Tile detection runs fully on-device with a YOLO model in TFLite (LiteRT), so it works offline at the table.

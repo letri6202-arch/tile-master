@@ -1,4 +1,4 @@
-package com.tilevision.ui
+package com.tilemaster.ui
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
@@ -54,10 +54,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tilevision.detection.Detection
-import com.tilevision.model.Hand
-import com.tilevision.model.Suit
-import com.tilevision.model.Tile
+import com.tilemaster.detection.Detection
+import com.tilemaster.model.Hand
+import com.tilemaster.model.Suit
+import com.tilemaster.model.Tile
 import kotlinx.coroutines.launch
 
 /** What the tile picker is editing: an existing tile in the hand, or a new one to append. */

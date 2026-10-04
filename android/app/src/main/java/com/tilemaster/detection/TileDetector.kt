@@ -1,4 +1,4 @@
-package com.tilevision.detection
+package com.tilemaster.detection
 
 import android.graphics.Bitmap
 

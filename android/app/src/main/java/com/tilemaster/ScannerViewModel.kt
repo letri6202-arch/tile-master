@@ -1,4 +1,4 @@
-package com.tilevision
+package com.tilemaster
 
 import android.app.Application
 import android.graphics.Bitmap
@@ -8,12 +8,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.tilevision.detection.Detection
-import com.tilevision.detection.FakeTileDetector
-import com.tilevision.detection.TfliteTileDetector
-import com.tilevision.detection.TileDetector
-import com.tilevision.model.Hand
-import com.tilevision.model.Tile
+import com.tilemaster.detection.Detection
+import com.tilemaster.detection.FakeTileDetector
+import com.tilemaster.detection.TfliteTileDetector
+import com.tilemaster.detection.TileDetector
+import com.tilemaster.model.Hand
+import com.tilemaster.model.Tile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

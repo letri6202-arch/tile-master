@@ -1,7 +1,7 @@
-package com.tilevision.model
+package com.tilemaster.model
 
-import com.tilevision.detection.BoundingBox
-import com.tilevision.detection.Detection
+import com.tilemaster.detection.BoundingBox
+import com.tilemaster.detection.Detection
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

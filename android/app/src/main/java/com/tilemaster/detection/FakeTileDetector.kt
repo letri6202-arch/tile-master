@@ -1,7 +1,7 @@
-package com.tilevision.detection
+package com.tilemaster.detection
 
 import android.graphics.Bitmap
-import com.tilevision.model.Tile
+import com.tilemaster.model.Tile
 
 /**
  * Stand-in used until a trained model is placed in assets. Ignores the image and returns a

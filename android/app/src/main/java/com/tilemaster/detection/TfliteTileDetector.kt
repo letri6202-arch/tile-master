@@ -1,4 +1,4 @@
-package com.tilevision.detection
+package com.tilemaster.detection
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,7 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import com.tilevision.model.Tile
+import com.tilemaster.model.Tile
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import java.io.Closeable

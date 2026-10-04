@@ -1,4 +1,4 @@
-package com.tilevision.detection
+package com.tilemaster.detection
 
 import kotlin.math.min
 import kotlin.math.roundToInt

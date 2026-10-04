@@ -1,4 +1,4 @@
-package com.tilevision.ui
+package com.tilemaster.ui
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +57,6 @@ private val TableShapes = Shapes(
 )
 
 @Composable
-fun TileVisionTheme(content: @Composable () -> Unit) {
+fun TileMasterTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = TableScheme, shapes = TableShapes, content = content)
 }

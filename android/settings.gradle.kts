@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TileVision"
+rootProject.name = "TileMaster"
 include(":app")

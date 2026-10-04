@@ -1,6 +1,6 @@
-package com.tilevision.detection
+package com.tilemaster.detection
 
-import com.tilevision.model.Tile
+import com.tilemaster.model.Tile
 
 /**
  * Decodes the raw output of an Ultralytics YOLO (v8/11) detection model exported to TFLite.

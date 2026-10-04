@@ -1,7 +1,7 @@
 """Single source of truth for the tile classes.
 
 Order is the model's class index order and MUST match the declaration order of
-`android/app/src/main/java/com/tilevision/model/Tile.kt`.
+`android/app/src/main/java/com/tilemaster/model/Tile.kt`.
 """
 
 CLASSES = (

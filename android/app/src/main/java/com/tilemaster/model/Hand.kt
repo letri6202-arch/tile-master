@@ -1,6 +1,6 @@
-package com.tilevision.model
+package com.tilemaster.model
 
-import com.tilevision.detection.Detection
+import com.tilemaster.detection.Detection
 
 object Hand {
     /** A closed winning hand without kans. Each kan adds one tile. */

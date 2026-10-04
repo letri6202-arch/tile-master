@@ -1,4 +1,4 @@
-package com.tilevision.camera
+package com.tilemaster.camera
 
 import android.graphics.Bitmap
 import android.graphics.Matrix

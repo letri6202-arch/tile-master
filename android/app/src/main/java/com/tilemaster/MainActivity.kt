@@ -1,4 +1,4 @@
-package com.tilevision
+package com.tilemaster
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -39,11 +39,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tilevision.camera.CameraScreen
-import com.tilevision.model.Tile
-import com.tilevision.ui.HandReviewScreen
-import com.tilevision.ui.TileVisionTheme
-import com.tilevision.ui.TileFace
+import com.tilemaster.camera.CameraScreen
+import com.tilemaster.model.Tile
+import com.tilemaster.ui.HandReviewScreen
+import com.tilemaster.ui.TileMasterTheme
+import com.tilemaster.ui.TileFace
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
         )
         super.onCreate(savedInstanceState)
         setContent {
-            TileVisionTheme {
+            TileMasterTheme {
                 App()
             }
         }
@@ -126,7 +126,7 @@ private fun PermissionRequired(onRequest: () -> Unit, modifier: Modifier = Modif
             }
         }
         Text(
-            "Tile Vision",
+            "Tile Master",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 32.dp),

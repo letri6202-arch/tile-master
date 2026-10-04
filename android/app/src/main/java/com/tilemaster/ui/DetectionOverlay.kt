@@ -1,4 +1,4 @@
-package com.tilevision.ui
+package com.tilemaster.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -14,8 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tilevision.camera.fitInside
-import com.tilevision.detection.Detection
+import com.tilemaster.camera.fitInside
+import com.tilemaster.detection.Detection
 
 /** Detections below this confidence are drawn in a warning color, as tiles worth double-checking. */
 private const val CONFIDENT = 0.7f

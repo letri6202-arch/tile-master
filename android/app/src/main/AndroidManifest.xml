@@ -6,7 +6,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="Tile Vision"
+        android:label="Tile Master"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.NoActionBar">
 

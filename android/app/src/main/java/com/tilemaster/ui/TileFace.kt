@@ -1,4 +1,4 @@
-package com.tilevision.ui
+package com.tilemaster.ui
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -30,8 +30,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.tilevision.model.Suit
-import com.tilevision.model.Tile
+import com.tilemaster.model.Suit
+import com.tilemaster.model.Tile
 
 private val FaceTop = Color(0xFFFFFCF3)
 private val FaceBottom = Color(0xFFEFE6D0)

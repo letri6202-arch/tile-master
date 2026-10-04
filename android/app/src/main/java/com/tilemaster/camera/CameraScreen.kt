@@ -1,4 +1,4 @@
-package com.tilevision.camera
+package com.tilemaster.camera
 
 import android.graphics.Bitmap
 import android.util.Log
@@ -54,9 +54,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.tilevision.detection.TileDetector
-import com.tilevision.ui.DetectionOverlay
-import com.tilevision.ui.TableColors
+import com.tilemaster.detection.TileDetector
+import com.tilemaster.ui.DetectionOverlay
+import com.tilemaster.ui.TableColors
 import java.util.concurrent.Executors
 
 private const val TAG = "CameraScreen"
@@ -184,7 +184,7 @@ private fun TopBar(isDemo: Boolean, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            "Tile Vision",
+            "Tile Master",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = Color.White,
