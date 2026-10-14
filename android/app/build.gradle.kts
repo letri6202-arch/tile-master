@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.chaquopy)
 }
 
 android {
@@ -14,6 +15,11 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+
+        // Chaquopy bundles a Python runtime per ABI: phones, plus x86_64 for the emulator.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
     }
 
     buildTypes {
@@ -42,6 +48,17 @@ android {
     }
 }
 
+// Scoring runs the `mahjong` library on-device (src/main/python/scorer.py).
+// Keep the version in sync with src/test/python/requirements.txt.
+chaquopy {
+    defaultConfig {
+        version = "3.12"
+        pip {
+            install("mahjong==1.4.0")
+        }
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -65,4 +82,6 @@ dependencies {
     implementation(libs.litert)
 
     testImplementation(libs.junit)
+    // Android's org.json is a stub in JVM unit tests.
+    testImplementation(libs.json)
 }

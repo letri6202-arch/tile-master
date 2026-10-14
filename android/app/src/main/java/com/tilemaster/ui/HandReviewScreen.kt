@@ -78,6 +78,7 @@ fun HandReviewScreen(
     onRemoveTile: (index: Int) -> Unit,
     onAddTile: (Tile) -> Unit,
     onRetake: () -> Unit,
+    onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var picker by remember { mutableStateOf<PickerTarget?>(null) }
@@ -137,9 +138,8 @@ fun HandReviewScreen(
                 Spacer(Modifier.width(8.dp))
                 Text("Retake")
             }
-            // Scoring is the next phase; the button marks where it will plug in.
-            Button(onClick = {}, enabled = false, modifier = Modifier.weight(1f).height(52.dp)) {
-                Text("Score (soon)")
+            Button(onClick = onNext, enabled = tiles.isNotEmpty(), modifier = Modifier.weight(1f).height(52.dp)) {
+                Text("Next")
             }
         }
     }
@@ -246,11 +246,11 @@ private fun HandStatus(problems: List<String>) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun TilePickerSheet(
+fun TilePickerSheet(
     title: String,
-    showRemove: Boolean,
+    showRemove: Boolean = false,
     onPick: (Tile) -> Unit,
-    onRemove: () -> Unit,
+    onRemove: () -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
