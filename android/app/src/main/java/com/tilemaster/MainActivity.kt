@@ -42,6 +42,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tilemaster.camera.CameraScreen
 import com.tilemaster.model.Tile
 import com.tilemaster.ui.HandReviewScreen
+import com.tilemaster.ui.QuestionsScreen
+import com.tilemaster.ui.ResultScreen
 import com.tilemaster.ui.TileMasterTheme
 import com.tilemaster.ui.TileFace
 
@@ -86,22 +88,63 @@ private fun App(vm: ScannerViewModel = viewModel()) {
         }
 
         when (val screen = vm.screen) {
-            Screen.Camera -> CameraScreen(
-                detector = vm.detector,
-                isProcessing = vm.isProcessing,
-                onPhotoCaptured = vm::onPhotoCaptured,
-            )
+            is Screen.Camera -> {
+                val forIndicators = screen.target != CaptureTarget.HAND
+                if (forIndicators) BackHandler(onBack = vm::closeIndicatorCamera)
+                CameraScreen(
+                    detector = vm.detector,
+                    isProcessing = vm.isProcessing,
+                    onPhotoCaptured = vm::onPhotoCaptured,
+                    title = when (screen.target) {
+                        CaptureTarget.HAND -> "Tile Master"
+                        CaptureTarget.DORA -> "Dora indicators"
+                        CaptureTarget.URA_DORA -> "Ura dora indicators"
+                    },
+                    idleHint = if (forIndicators) "Point at the indicator tiles" else "Lay your hand out in one row",
+                    onClose = if (forIndicators) vm::closeIndicatorCamera else null,
+                )
+            }
 
-            is Screen.Review -> {
+            Screen.Review -> {
                 BackHandler(onBack = vm::retake)
-                HandReviewScreen(
-                    photo = screen.photo,
-                    detections = screen.detections,
+                val scan = vm.scan
+                if (scan != null) {
+                    HandReviewScreen(
+                        photo = scan.photo,
+                        detections = scan.detections,
+                        tiles = vm.tiles,
+                        onReplaceTile = vm::replaceTile,
+                        onRemoveTile = vm::removeTile,
+                        onAddTile = vm::addTile,
+                        onRetake = vm::retake,
+                        onNext = vm::startQuestions,
+                    )
+                }
+            }
+
+            is Screen.Questions -> {
+                BackHandler(onBack = vm::previousStep)
+                QuestionsScreen(
+                    step = screen.step,
                     tiles = vm.tiles,
-                    onReplaceTile = vm::replaceTile,
-                    onRemoveTile = vm::removeTile,
-                    onAddTile = vm::addTile,
-                    onRetake = vm::retake,
+                    context = vm.handContext,
+                    isProcessing = vm.isProcessing,
+                    onUpdate = vm::updateContext,
+                    onAddMeld = vm::addMeld,
+                    onRemoveMeld = vm::removeMeld,
+                    onScanIndicators = vm::scanIndicators,
+                    onGoToStep = vm::goToStep,
+                    onBack = vm::previousStep,
+                    onNext = vm::nextStep,
+                )
+            }
+
+            is Screen.Result -> {
+                BackHandler(onBack = vm::editAnswers)
+                ResultScreen(
+                    outcome = screen.outcome,
+                    onEditAnswers = vm::editAnswers,
+                    onScanNext = vm::retake,
                 )
             }
         }

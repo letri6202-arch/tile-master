@@ -33,7 +33,11 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,6 +71,9 @@ fun CameraScreen(
     isProcessing: Boolean,
     onPhotoCaptured: (Bitmap) -> Unit,
     modifier: Modifier = Modifier,
+    title: String = "Tile Master",
+    idleHint: String = "Lay your hand out in one row",
+    onClose: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -136,7 +143,12 @@ fun CameraScreen(
             modifier = Modifier.fillMaxSize(),
         )
 
-        TopBar(isDemo = detector.isDemo, modifier = Modifier.align(Alignment.TopCenter))
+        TopBar(
+            title = title,
+            isDemo = detector.isDemo,
+            onClose = onClose,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
 
         Column(
             modifier = Modifier
@@ -149,7 +161,7 @@ fun CameraScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             val count = live.detections.size
-            HintPill(if (count == 0) "Lay your hand out in one row" else "$count tile${if (count == 1) "" else "s"} in view")
+            HintPill(if (count == 0) idleHint else "$count tile${if (count == 1) "" else "s"} in view")
             ShutterButton(
                 isProcessing = isProcessing,
                 onClick = {
@@ -174,17 +186,22 @@ fun CameraScreen(
 }
 
 @Composable
-private fun TopBar(isDemo: Boolean, modifier: Modifier = Modifier) {
+private fun TopBar(title: String, isDemo: Boolean, onClose: (() -> Unit)?, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent)))
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-            .padding(start = 20.dp, end = 16.dp, top = 12.dp, bottom = 28.dp),
+            .padding(start = if (onClose == null) 20.dp else 4.dp, end = 16.dp, top = 12.dp, bottom = 28.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (onClose != null) {
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = "Close camera", tint = Color.White)
+            }
+        }
         Text(
-            "Tile Master",
+            title,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = Color.White,
