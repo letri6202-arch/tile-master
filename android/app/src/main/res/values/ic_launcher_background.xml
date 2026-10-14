@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches the navy around the artwork in ic_launcher_foreground. -->
+    <color name="ic_launcher_background">#16243F</color>
+</resources>
