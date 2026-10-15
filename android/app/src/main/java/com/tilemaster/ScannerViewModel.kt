@@ -33,6 +33,7 @@ sealed interface Screen {
     data object Home : Screen
     data class Camera(val target: CaptureTarget = CaptureTarget.HAND) : Screen
     data object Review : Screen
+    data object ManualEntry : Screen
     data class Questions(val step: QuestionStep) : Screen
     data class Result(val outcome: ScoreOutcome) : Screen
 }
@@ -121,6 +122,19 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
         retake()
     }
 
+    fun startManualEntry() {
+        scan = null
+        tiles = emptyList()
+        // Seat and round wind usually carry over to the next hand.
+        handContext = HandContext(seatWind = handContext.seatWind, roundWind = handContext.roundWind)
+        screen = Screen.ManualEntry
+    }
+
+    fun clearTiles() {
+        tiles = emptyList()
+        updateContext { it.copy(melds = emptyList(), winIndex = null) }
+    }
+
     fun goHome() {
         scan = null
         tiles = emptyList()
@@ -172,7 +186,11 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
     fun previousStep() {
         val step = (screen as? Screen.Questions)?.step ?: return
         val previous = QuestionStep.previous(step, handContext)
-        screen = if (previous == null) Screen.Review else Screen.Questions(previous)
+        screen = when {
+            previous != null -> Screen.Questions(previous)
+            scan == null -> Screen.ManualEntry
+            else -> Screen.Review
+        }
     }
 
     fun scanIndicators(ura: Boolean) {

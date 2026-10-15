@@ -3,7 +3,9 @@ package com.tilemaster.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,11 +25,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,7 +46,7 @@ enum class MainTab(val label: String, val tile: Tile) {
 }
 
 @Composable
-fun MainTabsScreen(onScoreHand: () -> Unit, modifier: Modifier = Modifier) {
+fun MainTabsScreen(onScoreHand: () -> Unit, onEnterManually: () -> Unit, modifier: Modifier = Modifier) {
     val pagerState = rememberPagerState(initialPage = MainTab.SCORE.ordinal) { MainTab.entries.size }
     val scope = rememberCoroutineScope()
     val selectTab: (MainTab) -> Unit = { scope.launch { pagerState.animateScrollToPage(it.ordinal) } }
@@ -54,7 +58,7 @@ fun MainTabsScreen(onScoreHand: () -> Unit, modifier: Modifier = Modifier) {
         HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
             when (MainTab.entries[page]) {
                 MainTab.DOCS -> DocsScreen()
-                MainTab.SCORE -> HomeScreen(onScoreHand = onScoreHand)
+                MainTab.SCORE -> HomeScreen(onScoreHand = onScoreHand, onEnterManually = onEnterManually)
                 MainTab.COACHING -> CoachingScreen()
             }
         }
@@ -92,11 +96,23 @@ private fun TabButton(tab: MainTab, isSelected: Boolean, onClick: () -> Unit, mo
         if (isSelected) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
         label = "tabBackdrop",
     )
+    val source = remember { MutableInteractionSource() }
+    val pressScale = rememberPressScale(source, enabled = true)
     Column(
         modifier
+            .graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+            }
             .clip(MaterialTheme.shapes.medium)
             .background(backdrop)
-            .selectable(selected = isSelected, onClick = onClick, role = Role.Tab)
+            .selectable(
+                selected = isSelected,
+                interactionSource = source,
+                indication = LocalIndication.current,
+                onClick = onClick,
+                role = Role.Tab,
+            )
             .padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

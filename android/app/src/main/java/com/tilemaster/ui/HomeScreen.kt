@@ -1,6 +1,9 @@
 package com.tilemaster.ui
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,20 +13,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -31,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.tilemaster.model.Tile
 
 @Composable
-fun HomeScreen(onScoreHand: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeScreen(onScoreHand: () -> Unit, onEnterManually: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier
             .fillMaxSize()
@@ -62,6 +72,22 @@ fun HomeScreen(onScoreHand: () -> Unit, modifier: Modifier = Modifier) {
 
         ScoreHandCard(onClick = onScoreHand)
 
+        val manualSource = remember { MutableInteractionSource() }
+        val manualScale = rememberPressScale(manualSource, enabled = true)
+        TextButton(
+            onClick = onEnterManually,
+            interactionSource = manualSource,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .graphicsLayer {
+                    scaleX = manualScale
+                    scaleY = manualScale
+                },
+        ) {
+            Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Enter tiles manually")
+        }
     }
 }
 
@@ -81,12 +107,23 @@ fun TileFan(tileWidth: Dp, modifier: Modifier = Modifier) {
 
 @Composable
 private fun ScoreHandCard(onClick: () -> Unit) {
+    val source = remember { MutableInteractionSource() }
+    val scale = rememberPressScale(source, enabled = true)
+    val pressed by source.collectIsPressedAsState()
+    // The arrow leans toward where the card is about to take you.
+    val arrowNudge by animateDpAsState(if (pressed) 6.dp else 0.dp, label = "arrowNudge")
     Surface(
         onClick = onClick,
+        interactionSource = source,
         color = MaterialTheme.colorScheme.primaryContainer,
         shape = MaterialTheme.shapes.large,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
     ) {
         Row(
             Modifier.padding(20.dp),
@@ -111,7 +148,7 @@ private fun ScoreHandCard(onClick: () -> Unit) {
                     Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(10.dp),
+                    modifier = Modifier.padding(10.dp).offset(x = arrowNudge),
                 )
             }
         }

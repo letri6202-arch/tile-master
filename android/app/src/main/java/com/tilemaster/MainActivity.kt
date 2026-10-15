@@ -11,6 +11,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +50,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tilemaster.camera.CameraScreen
 import com.tilemaster.ui.HandReviewScreen
 import com.tilemaster.ui.MainTabsScreen
+import com.tilemaster.ui.ManualEntryScreen
 import com.tilemaster.ui.QuestionsScreen
 import com.tilemaster.ui.ResultScreen
 import com.tilemaster.ui.TileMasterTheme
@@ -82,8 +93,14 @@ private fun App(vm: ScannerViewModel = viewModel()) {
 
     // Screens handle window insets themselves so the camera preview can run edge to edge.
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
-        when (val screen = vm.screen) {
-            Screen.Home -> MainTabsScreen(onScoreHand = vm::startScoring)
+        AnimatedContent(
+            targetState = vm.screen,
+            contentKey = { it::class },
+            transitionSpec = { screenTransition(initialState, targetState) },
+            label = "screen",
+        ) { screen ->
+        when (screen) {
+            Screen.Home -> MainTabsScreen(onScoreHand = vm::startScoring, onEnterManually = vm::startManualEntry)
 
             is Screen.Camera -> {
                 val forIndicators = screen.target != CaptureTarget.HAND
@@ -94,7 +111,7 @@ private fun App(vm: ScannerViewModel = viewModel()) {
                         onRequest = { permissionLauncher.launch(Manifest.permission.CAMERA) },
                         onBack = closeCamera,
                     )
-                    return@Surface
+                    return@AnimatedContent
                 }
                 CameraScreen(
                     detector = vm.detector,
@@ -127,6 +144,18 @@ private fun App(vm: ScannerViewModel = viewModel()) {
                 }
             }
 
+            Screen.ManualEntry -> {
+                BackHandler(onBack = vm::goHome)
+                ManualEntryScreen(
+                    tiles = vm.tiles,
+                    onAddTile = vm::addTile,
+                    onRemoveTile = vm::removeTile,
+                    onClear = vm::clearTiles,
+                    onBack = vm::goHome,
+                    onNext = vm::startQuestions,
+                )
+            }
+
             is Screen.Questions -> {
                 BackHandler(onBack = vm::previousStep)
                 QuestionsScreen(
@@ -154,7 +183,34 @@ private fun App(vm: ScannerViewModel = viewModel()) {
                 )
             }
         }
+        }
     }
+}
+
+/** Where a screen sits in the scoring journey; moving to a higher rank slides forward. */
+private fun Screen.rank(): Int = when (this) {
+    Screen.Home -> 0
+    Screen.ManualEntry -> 1
+    is Screen.Camera -> if (target == CaptureTarget.HAND) 1 else 4
+    Screen.Review -> 2
+    is Screen.Questions -> 3
+    is Screen.Result -> 5
+}
+
+/** Forward moves slide in from the right with a slight grow; backward moves mirror it. */
+private fun screenTransition(from: Screen, to: Screen): ContentTransform {
+    val forward = to.rank() >= from.rank()
+    val direction = if (forward) 1 else -1
+    val slide = tween<androidx.compose.ui.unit.IntOffset>(durationMillis = 320)
+    return (
+        slideInHorizontally(slide) { direction * it / 6 } +
+            fadeIn(tween(260, delayMillis = 40)) +
+            scaleIn(tween(320), initialScale = if (forward) 0.96f else 1.04f)
+        ) togetherWith (
+        slideOutHorizontally(slide) { -direction * it / 6 } +
+            fadeOut(tween(160)) +
+            scaleOut(tween(320), targetScale = if (forward) 1.04f else 0.96f)
+        )
 }
 
 @Composable

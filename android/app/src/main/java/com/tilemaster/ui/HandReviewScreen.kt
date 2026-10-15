@@ -206,6 +206,7 @@ private fun HandRack(
                         TileFace(
                             tile = tile,
                             width = tileWidth,
+                            popIn = true,
                             selected = selectedIndex == index,
                             onClick = { onTileClick(index) },
                         )
@@ -218,7 +219,7 @@ private fun HandRack(
 }
 
 @Composable
-private fun HandStatus(problems: List<String>) {
+internal fun HandStatus(problems: List<String>) {
     val ok = problems.isEmpty()
     Surface(
         color = if (ok) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer,

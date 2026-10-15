@@ -1,9 +1,15 @@
 package com.tilemaster.ui
 
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +21,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -55,6 +68,35 @@ private fun Tile.inkColor(): Color = when {
 /** Height of a tile face relative to its width (real Riichi tiles are about 3:4). */
 private const val ASPECT = 1.36f
 
+/** Scale a tile shrinks to while a finger is on it. */
+private const val PRESSED_SCALE = 0.9f
+
+private val PressSpring = spring<Float>(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium)
+
+/**
+ * Squashes the element while pressed and springs back with a small overshoot on release. Also
+ * gives a light haptic tick on press.
+ */
+@Composable
+internal fun rememberPressScale(source: MutableInteractionSource, enabled: Boolean): Float {
+    val pressed by source.collectIsPressedAsState()
+    val haptics = LocalHapticFeedback.current
+    LaunchedEffect(pressed) {
+        if (pressed && enabled) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+    val scale by animateFloatAsState(if (pressed && enabled) PRESSED_SCALE else 1f, PressSpring, label = "tilePress")
+    return scale
+}
+
+/** Pops from nothing to full size with a slight overshoot the first time it is composed. */
+@Composable
+private fun rememberPopIn(enabled: Boolean): Float {
+    var arrived by remember { mutableStateOf(!enabled) }
+    LaunchedEffect(Unit) { arrived = true }
+    val scale by animateFloatAsState(if (arrived) 1f else 0.4f, PressSpring, label = "tilePopIn")
+    return scale
+}
+
 /**
  * A tile drawn like a physical one: an ivory face on top of a green back, so it reads as having
  * thickness. Text scales with [width], not with the system font size, so it always fits the face.
@@ -65,8 +107,12 @@ fun TileFace(
     modifier: Modifier = Modifier,
     width: Dp = 40.dp,
     selected: Boolean = false,
+    popIn: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressScale = rememberPressScale(interactionSource, enabled = onClick != null)
+    val popScale = rememberPopIn(popIn)
     val faceHeight = width * ASPECT
     val depth = width * 0.12f
     val shape = RoundedCornerShape(width * 0.16f)
@@ -79,6 +125,12 @@ fun TileFace(
         modifier
             .size(width, faceHeight + depth)
             .offset(y = -lift)
+            .graphicsLayer {
+                val s = pressScale * popScale
+                scaleX = s
+                scaleY = s
+                alpha = popScale.coerceAtMost(1f)
+            }
             .semantics { contentDescription = tile.displayName },
     ) {
         Box(
@@ -99,7 +151,7 @@ fun TileFace(
                     color = if (selected) TableColors.Gold else FaceEdge,
                     shape = shape,
                 )
-                .let { if (onClick != null) it.clickable(onClick = onClick) else it },
+                .let { if (onClick != null) it.clickable(interactionSource = interactionSource, indication = LocalIndication.current, onClick = onClick) else it },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -143,10 +195,16 @@ fun AddTileSlot(onClick: () -> Unit, modifier: Modifier = Modifier, width: Dp = 
     val depth = width * 0.12f
     val shape = RoundedCornerShape(width * 0.16f)
     val color = TableColors.Gold.copy(alpha = 0.8f)
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressScale = rememberPressScale(interactionSource, enabled = true)
     val plusSize = with(LocalDensity.current) { (width * 0.55f).toSp() }
     Box(
         modifier
             .size(width, faceHeight + depth)
+            .graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+            }
             .semantics { contentDescription = "Add a tile" },
     ) {
         Box(
@@ -163,7 +221,7 @@ fun AddTileSlot(onClick: () -> Unit, modifier: Modifier = Modifier, width: Dp = 
                         style = Stroke(width = stroke, pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f))),
                     )
                 }
-                .clickable(onClick = onClick),
+                .clickable(interactionSource = interactionSource, indication = LocalIndication.current, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Text("+", color = color, fontSize = plusSize, fontWeight = FontWeight.Light)
