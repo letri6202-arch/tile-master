@@ -30,6 +30,7 @@ import java.io.Closeable
 enum class CaptureTarget { HAND, DORA, URA_DORA }
 
 sealed interface Screen {
+    data object Home : Screen
     data class Camera(val target: CaptureTarget = CaptureTarget.HAND) : Screen
     data object Review : Screen
     data class Questions(val step: QuestionStep) : Screen
@@ -48,7 +49,7 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
 
     private val scorer = PythonScorer(app)
 
-    var screen by mutableStateOf<Screen>(Screen.Camera())
+    var screen by mutableStateOf<Screen>(Screen.Home)
         private set
 
     var isProcessing by mutableStateOf(false)
@@ -114,6 +115,16 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
 
     fun addTile(tile: Tile) {
         tiles = tiles + tile
+    }
+
+    fun startScoring() {
+        retake()
+    }
+
+    fun goHome() {
+        scan = null
+        tiles = emptyList()
+        screen = Screen.Home
     }
 
     fun retake() {

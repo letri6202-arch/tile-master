@@ -16,12 +16,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -46,6 +48,7 @@ fun ResultScreen(
     outcome: ScoreOutcome,
     onEditAnswers: () -> Unit,
     onScanNext: () -> Unit,
+    onHome: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -55,12 +58,23 @@ fun ResultScreen(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+            Text(
+                "Result",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f).padding(start = 4.dp),
+            )
+            IconButton(onClick = onHome) {
+                Icon(Icons.Default.Home, contentDescription = "Home")
+            }
+        }
         Column(
             Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(top = 16.dp, bottom = 8.dp),
+                .padding(bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             when (outcome) {
