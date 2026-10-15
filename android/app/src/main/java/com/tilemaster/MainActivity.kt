@@ -39,7 +39,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tilemaster.camera.CameraScreen
 import com.tilemaster.ui.HandReviewScreen
-import com.tilemaster.ui.HomeScreen
+import com.tilemaster.ui.MainTabsScreen
 import com.tilemaster.ui.QuestionsScreen
 import com.tilemaster.ui.ResultScreen
 import com.tilemaster.ui.TileMasterTheme
@@ -83,7 +83,7 @@ private fun App(vm: ScannerViewModel = viewModel()) {
     // Screens handle window insets themselves so the camera preview can run edge to edge.
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         when (val screen = vm.screen) {
-            Screen.Home -> HomeScreen(onScoreHand = vm::startScoring)
+            Screen.Home -> MainTabsScreen(onScoreHand = vm::startScoring)
 
             is Screen.Camera -> {
                 val forIndicators = screen.target != CaptureTarget.HAND
