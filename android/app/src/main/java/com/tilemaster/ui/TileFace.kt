@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -102,8 +103,12 @@ fun TileFace(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(tile.faceTop, color = tile.inkColor(), fontSize = topSize, fontWeight = FontWeight.Bold, lineHeight = topSize)
-            tile.faceBottom?.let { Text(it, color = tile.inkColor(), fontSize = bottomSize, lineHeight = bottomSize) }
+            if (tile == Tile.HAKU) {
+                HakuFrame(width, faceHeight)
+            } else {
+                Text(tile.faceTop, color = tile.inkColor(), fontSize = topSize, fontWeight = FontWeight.Bold, lineHeight = topSize)
+                tile.faceBottom?.let { Text(it, color = tile.inkColor(), fontSize = bottomSize, lineHeight = bottomSize) }
+            }
         }
         if (tile.isRedFive) {
             Box(
@@ -116,6 +121,19 @@ fun TileFace(
             )
         }
     }
+}
+
+/** The white dragon drawn as a framed rectangle, as on many physical sets, rather than a blank face. */
+@Composable
+private fun HakuFrame(width: Dp, faceHeight: Dp) {
+    Box(
+        Modifier
+            .size(width * 0.58f, faceHeight * 0.68f)
+            .border(width * 0.06f, TileBlue, RoundedCornerShape(width * 0.06f))
+            .padding(width * 0.1f)
+            .border(width * 0.025f, TileBlue, RoundedCornerShape(width * 0.03f))
+            .fillMaxSize(),
+    )
 }
 
 /** An empty dashed tile slot with a plus, used to add a missed tile. */

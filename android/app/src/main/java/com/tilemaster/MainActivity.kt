@@ -13,17 +13,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,12 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tilemaster.camera.CameraScreen
-import com.tilemaster.model.Tile
 import com.tilemaster.ui.HandReviewScreen
+import com.tilemaster.ui.MainTabsScreen
 import com.tilemaster.ui.QuestionsScreen
 import com.tilemaster.ui.ResultScreen
 import com.tilemaster.ui.TileMasterTheme
-import com.tilemaster.ui.TileFace
+import com.tilemaster.ui.TileFan
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,21 +74,28 @@ private fun App(vm: ScannerViewModel = viewModel()) {
         ActivityResultContracts.RequestPermission(),
     ) { granted -> hasCameraPermission = granted }
 
-    LaunchedEffect(Unit) {
-        if (!hasCameraPermission) permissionLauncher.launch(Manifest.permission.CAMERA)
+    // Ask for the camera only once the player heads to it, not on the home screen.
+    val needsCamera = vm.screen is Screen.Camera
+    LaunchedEffect(needsCamera) {
+        if (needsCamera && !hasCameraPermission) permissionLauncher.launch(Manifest.permission.CAMERA)
     }
 
     // Screens handle window insets themselves so the camera preview can run edge to edge.
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
-        if (!hasCameraPermission) {
-            PermissionRequired(onRequest = { permissionLauncher.launch(Manifest.permission.CAMERA) })
-            return@Surface
-        }
-
         when (val screen = vm.screen) {
+            Screen.Home -> MainTabsScreen(onScoreHand = vm::startScoring)
+
             is Screen.Camera -> {
                 val forIndicators = screen.target != CaptureTarget.HAND
-                if (forIndicators) BackHandler(onBack = vm::closeIndicatorCamera)
+                val closeCamera = if (forIndicators) vm::closeIndicatorCamera else vm::goHome
+                BackHandler(onBack = closeCamera)
+                if (!hasCameraPermission) {
+                    PermissionRequired(
+                        onRequest = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+                        onBack = closeCamera,
+                    )
+                    return@Surface
+                }
                 CameraScreen(
                     detector = vm.detector,
                     isProcessing = vm.isProcessing,
@@ -101,7 +106,7 @@ private fun App(vm: ScannerViewModel = viewModel()) {
                         CaptureTarget.URA_DORA -> "Ura dora indicators"
                     },
                     idleHint = if (forIndicators) "Point at the indicator tiles" else "Lay your hand out in one row",
-                    onClose = if (forIndicators) vm::closeIndicatorCamera else null,
+                    onClose = closeCamera,
                 )
             }
 
@@ -145,6 +150,7 @@ private fun App(vm: ScannerViewModel = viewModel()) {
                     outcome = screen.outcome,
                     onEditAnswers = vm::editAnswers,
                     onScanNext = vm::retake,
+                    onHome = vm::goHome,
                 )
             }
         }
@@ -152,30 +158,21 @@ private fun App(vm: ScannerViewModel = viewModel()) {
 }
 
 @Composable
-private fun PermissionRequired(onRequest: () -> Unit, modifier: Modifier = Modifier) {
+private fun PermissionRequired(onRequest: () -> Unit, onBack: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize().safeDrawingPadding().padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // A small fanned-out hand as the hero.
-        Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
-            listOf(Tile.EAST to -10f, Tile.CHUN to 0f, Tile.M0 to 10f).forEach { (tile, angle) ->
-                TileFace(
-                    tile,
-                    width = 56.dp,
-                    modifier = Modifier.rotate(angle).offset(y = if (angle == 0f) (-8).dp else 0.dp),
-                )
-            }
-        }
+        TileFan(tileWidth = 56.dp)
         Text(
-            "Tile Master",
+            "Allow the camera",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 32.dp),
         )
         Text(
-            "Point your camera at a hand and it reads the tiles for you. Everything stays on your phone.",
+            "Tile Master reads your tiles from a photo. Everything stays on your phone.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -186,6 +183,9 @@ private fun PermissionRequired(onRequest: () -> Unit, modifier: Modifier = Modif
             modifier = Modifier.padding(top = 32.dp).fillMaxWidth().height(52.dp),
         ) {
             Text("Allow camera access")
+        }
+        TextButton(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) {
+            Text("Not now")
         }
     }
 }
